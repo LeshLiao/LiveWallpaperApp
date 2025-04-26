@@ -213,16 +213,34 @@ fun MainScreen() {
                         }
                     }
 
+                    // Replace this section in the MainScreen() composable where you set the wallpaper
+
                     if (videoPath != null) {
                         Button(
                             onClick = {
                                 Log.d("GDT", "Setting live wallpaper with video path: $videoPath")
+
                                 // Save video path to SharedPreferences
+                                // Important: We're now storing the full URI string
                                 context.getSharedPreferences("LiveWallpaperPrefs", Context.MODE_PRIVATE)
                                     .edit()
                                     .putString("video_path", videoPath)
                                     .apply()
 
+                                // First ensure we have proper permissions to read the video file
+                                // This is important when using ContentResolver
+                                try {
+                                    // Take persistent permissions for the URI if possible
+                                    // This helps maintain access after app restarts
+                                    val contentResolver = context.contentResolver
+                                    val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                                    contentResolver.takePersistableUriPermission(Uri.parse(videoPath), takeFlags)
+                                } catch (e: Exception) {
+                                    Log.e("GDT", "Failed to take persistable URI permission", e)
+                                    // Continue anyway as it might work without this
+                                }
+
+                                // Launch the wallpaper picker
                                 val intent = Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
                                 intent.putExtra(
                                     WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,

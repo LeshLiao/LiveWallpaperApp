@@ -7,12 +7,6 @@ import android.net.Uri
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
-import android.graphics.SurfaceTexture
-import android.view.Surface
-import android.graphics.Matrix
-import android.graphics.Paint
-import java.io.File
-import java.io.FileOutputStream
 
 class LiveWallpaperService : WallpaperService() {
     companion object {
@@ -41,14 +35,7 @@ class LiveWallpaperService : WallpaperService() {
 
     inner class WallpaperEngine : Engine() {
         private var mediaPlayer: MediaPlayer? = null
-        private var surfaceTexture: SurfaceTexture? = null
-        private var surface: Surface? = null
         private var isVideoPlaying = false
-        private var tempVideoFile: File? = null
-        private val paint = Paint().apply {
-            isAntiAlias = true
-            isFilterBitmap = true
-        }
 
         override fun onCreate(surfaceHolder: SurfaceHolder) {
             super.onCreate(surfaceHolder)
@@ -75,9 +62,6 @@ class LiveWallpaperService : WallpaperService() {
             super.onSurfaceDestroyed(holder)
             Log.d(TAG, "WallpaperEngine onSurfaceDestroyed")
             stopVideoPlayback()
-            // Clean up temp file
-            tempVideoFile?.delete()
-            tempVideoFile = null
         }
 
         override fun onVisibilityChanged(visible: Boolean) {
@@ -109,39 +93,18 @@ class LiveWallpaperService : WallpaperService() {
             try {
                 Log.d(TAG, "Creating MediaPlayer with URI: $videoPath")
 
-                // Create a SurfaceTexture and Surface
-                surfaceTexture = SurfaceTexture(0).apply {
-                    setDefaultBufferSize(holder.surfaceFrame.width(), holder.surfaceFrame.height())
-                }
-                surface = Surface(surfaceTexture)
-
-                // Copy video to temp file
-                val uri = Uri.parse(videoPath)
-                val contentResolver = applicationContext.contentResolver
-                val inputStream = contentResolver.openInputStream(uri)
-                if (inputStream == null) {
-                    Log.e(TAG, "Failed to open input stream for URI: $uri")
-                    return
-                }
-
-                tempVideoFile = File(applicationContext.cacheDir, "temp_video_${System.currentTimeMillis()}.mp4")
-                FileOutputStream(tempVideoFile).use { outputStream ->
-                    inputStream.copyTo(outputStream)
-                }
-                inputStream.close()
-
-                Log.d(TAG, "Successfully copied video to temp file: ${tempVideoFile!!.absolutePath}")
-
+                // Create MediaPlayer and use the holder's surface directly
                 mediaPlayer = MediaPlayer().apply {
-                    setDataSource(tempVideoFile!!.absolutePath)
-                    setSurface(surface)
+                    setDataSource(applicationContext, Uri.parse(videoPath))
+                    setSurface(holder.surface) // Use the system-provided surface
                     isLooping = true
+
                     setOnPreparedListener { mp ->
                         Log.d(TAG, "MediaPlayer prepared")
                         mp.start()
-                        // Update the class variable outside of the MediaPlayer scope
-                        this@WallpaperEngine.isVideoPlaying = true
+                        isVideoPlaying = true
                     }
+
                     setOnErrorListener { mp, what, extra ->
                         val errorMsg = when (what) {
                             MediaPlayer.MEDIA_ERROR_UNKNOWN -> "Unknown error"
@@ -153,48 +116,16 @@ class LiveWallpaperService : WallpaperService() {
                             else -> "Unknown error code: $what"
                         }
                         Log.e(TAG, "MediaPlayer error: $errorMsg (what=$what, extra=$extra)")
-                        // Update the class variable outside of the MediaPlayer scope
-                        this@WallpaperEngine.isVideoPlaying = false
+                        isVideoPlaying = false
                         true
                     }
+
                     setOnCompletionListener {
                         Log.d(TAG, "MediaPlayer playback completed")
                     }
+
                     prepareAsync()
                 }
-
-                // Set up the SurfaceTexture listener to update the wallpaper surface
-                surfaceTexture?.setOnFrameAvailableListener { texture ->
-                    try {
-                        texture.updateTexImage()
-                        val transformMatrix = FloatArray(16)
-                        texture.getTransformMatrix(transformMatrix)
-
-                        // Convert FloatArray to Matrix
-                        val matrix = Matrix().apply {
-                            setValues(transformMatrix)
-                        }
-
-                        // Draw the texture to the wallpaper surface
-                        holder.lockCanvas()?.let { canvas ->
-                            try {
-                                // Clear the canvas
-                                canvas.drawColor(0xFF000000.toInt())
-
-                                // Draw the texture
-                                canvas.save()
-                                canvas.concat(matrix)
-                                canvas.drawRect(0f, 0f, canvas.width.toFloat(), canvas.height.toFloat(), paint)
-                                canvas.restore()
-                            } finally {
-                                holder.unlockCanvasAndPost(canvas)
-                            }
-                        }
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Error updating texture", e)
-                    }
-                }
-
             } catch (e: Exception) {
                 Log.e(TAG, "Error setting up MediaPlayer", e)
                 stopVideoPlayback()
@@ -204,7 +135,7 @@ class LiveWallpaperService : WallpaperService() {
         private fun stopVideoPlayback() {
             mediaPlayer?.apply {
                 try {
-                    if (isPlaying()) {
+                    if (isPlaying) {
                         Log.d(TAG, "Stopping video playback")
                         stop()
                     }
@@ -215,10 +146,6 @@ class LiveWallpaperService : WallpaperService() {
                 release()
             }
             mediaPlayer = null
-            surface?.release()
-            surface = null
-            surfaceTexture?.release()
-            surfaceTexture = null
             isVideoPlaying = false
         }
     }

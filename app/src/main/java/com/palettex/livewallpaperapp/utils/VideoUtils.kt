@@ -232,7 +232,10 @@ object VideoUtils {
                 while (generateIndex < numFrames) {
                     // Calculate offset for animation (from -1 to 1)
                     val progress = generateIndex.toFloat() / numFrames
-                    val offset = -1.0f + (progress * 2.0f)
+                    // val offset = -1.0f + (progress * 2.0f)
+
+                    // Modified (left to center movement):
+                    val offset = -1.0f + progress
 
                     // Draw frame
                     GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f)

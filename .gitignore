@@ -1,0 +1,32 @@
+# Built files
+/build/
+/**/build/
+
+# Gradle
+.gradle/
+gradle-app.setting
+gradle-wrapper.jar
+
+# Local configuration
+/local.properties
+.idea/
+/*.iml
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Signing files
+*.jks
+*.keystore
+
+# Logs
+*.log
+
+# Crashlytics / Firebase
+crashlytics.properties
+fabric.properties
+
+# Other
+.cxx/

@@ -97,7 +97,7 @@ class LiveWallpaperService : WallpaperService() {
                 mediaPlayer = MediaPlayer().apply {
                     setDataSource(applicationContext, Uri.parse(videoPath))
                     setSurface(holder.surface) // Use the system-provided surface
-                    isLooping = true
+                    isLooping = false
 
                     setOnPreparedListener { mp ->
                         Log.d(TAG, "MediaPlayer prepared")

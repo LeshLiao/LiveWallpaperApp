@@ -226,6 +226,9 @@ object VideoUtils {
                 val bufferInfo = MediaCodec.BufferInfo()
                 var generateIndex = 0
 
+                // ADD THIS LINE - define the frame duration in microseconds
+                val frameDurationUs = 1_000_000L / frameRate
+
                 while (generateIndex < numFrames) {
                     // Calculate offset for animation (from -1 to 1)
                     val progress = generateIndex.toFloat() / numFrames
@@ -250,8 +253,8 @@ object VideoUtils {
 
                     GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4)
 
-                    // Add a small delay to ensure smooth animation
-                    Thread.sleep((1000L / frameRate))
+                    // REMOVE THIS LINE - delete the sleep as it's causing timing issues
+                    // Thread.sleep((1000L / frameRate))
 
                     EGL14.eglSwapBuffers(eglDisplay, eglSurface)
 
@@ -280,6 +283,9 @@ object VideoUtils {
 
                                 if (bufferInfo.size != 0) {
                                     if (muxerStarted) {
+                                        // SET PRECISE TIMESTAMPS - this is critical for duration control
+                                        bufferInfo.presentationTimeUs = generateIndex * frameDurationUs
+
                                         encodedData.position(bufferInfo.offset)
                                         encodedData.limit(bufferInfo.offset + bufferInfo.size)
                                         muxer.writeSampleData(trackIndex, encodedData, bufferInfo)
@@ -297,12 +303,12 @@ object VideoUtils {
 
                     // Check if we've exceeded the timeout
                     if ((System.currentTimeMillis() - startTime) >= timeoutMs) {
-                        throw IllegalStateException("Encoder output timeout")
-                    }
+                            throw IllegalStateException("Encoder output timeout")
+                        }
 
                     generateIndex++
                     onProgress(generateIndex.toFloat() / numFrames)
-                }
+                } //here
 
                 // Send end-of-stream to encoder
                 encoder.signalEndOfInputStream()

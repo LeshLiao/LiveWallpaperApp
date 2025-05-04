@@ -1,25 +1,37 @@
 package com.palettex.livewallpaperapp.ui
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.palettex.livewallpaperapp.ui.components.EditPhotoBottomMenu
 import com.palettex.livewallpaperapp.ui.template.WallpaperTemplate
 
 @Composable
-fun MainScreen() {
-    var selectedImageIndex by remember { mutableStateOf(-1) }
+fun MainScreen(
+    viewModel: MainViewModel = viewModel()
+) {
+    val imagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        viewModel.updateImage(uri)
+    }
 
     Scaffold(
         bottomBar = {
             EditPhotoBottomMenu(
-                isVisible = selectedImageIndex != -1,
-                onDoneClick = { selectedImageIndex = -1 },
+                isVisible = viewModel.selectedImageIndex != -1,
+                onDoneClick = { viewModel.clearSelection() },
                 onBatchReplaceClick = { /* TODO */ },
-                onSingleReplaceClick = { /* TODO */ },
+                onSingleReplaceClick = {
+                    imagePicker.launch("image/*")
+                },
                 onRotateClick = { /* TODO */ },
                 onHorizontalClick = { /* TODO */ },
                 onVerticalClick = { /* TODO */ }
@@ -33,9 +45,10 @@ fun MainScreen() {
             color = MaterialTheme.colorScheme.background
         ) {
             WallpaperTemplate(
-                selectedImageIndex = selectedImageIndex,
+                selectedImageIndex = viewModel.selectedImageIndex,
+                images = viewModel.images,
                 onImageClick = { index ->
-                    selectedImageIndex = if (selectedImageIndex == index) -1 else index
+                    viewModel.selectImage(index)
                 }
             )
         }

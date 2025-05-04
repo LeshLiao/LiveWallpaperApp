@@ -7,6 +7,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.palettex.livewallpaperapp.R
 
@@ -34,18 +35,22 @@ fun EditPhotoBottomMenu(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Title row with Done button
-                Row(
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                        .padding(horizontal = 16.dp, vertical = 4.dp)
                 ) {
+                    // Center title
                     Text(
                         text = "Edit Photos",
-                        style = MaterialTheme.typography.titleMedium
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.align(Alignment.Center)
                     )
-                    TextButton(onClick = onDoneClick) {
+                    // Right-aligned Done button
+                    TextButton(
+                        onClick = onDoneClick,
+                        modifier = Modifier.align(Alignment.CenterEnd)
+                    ) {
                         Text("Done")
                     }
                 }
@@ -122,6 +127,34 @@ private fun EditButton(
             style = MaterialTheme.typography.bodySmall,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(top = 2.dp)
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun EditPhotoBottomMenuPreview() {
+    MaterialTheme {
+        EditPhotoBottomMenu(
+            isVisible = true,
+            onDoneClick = {},
+            onBatchReplaceClick = {},
+            onSingleReplaceClick = {},
+            onRotateClick = {},
+            onHorizontalClick = {},
+            onVerticalClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun EditButtonPreview() {
+    MaterialTheme {
+        EditButton(
+            text = "Batch\nReplace",
+            icon = R.drawable.ic_batch_replace,
+            onClick = {}
         )
     }
 }

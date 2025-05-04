@@ -11,46 +11,25 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.palettex.livewallpaperapp.ui.components.EditPhotoBottomMenu
-import com.palettex.livewallpaperapp.ui.template.WallpaperTemplate
+import com.palettex.livewallpaperapp.ui.gallery.GalleryScreen
+import com.palettex.livewallpaperapp.ui.template.TemplatePage
 
 @Composable
 fun MainScreen(
     viewModel: MainViewModel = viewModel()
 ) {
-    val imagePicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        viewModel.updateImage(uri)
-    }
-
-    Scaffold(
-        bottomBar = {
-            EditPhotoBottomMenu(
-                isVisible = viewModel.selectedImageIndex != -1,
-                onDoneClick = { viewModel.clearSelection() },
-                onBatchReplaceClick = { /* TODO */ },
-                onSingleReplaceClick = {
-                    imagePicker.launch("image/*")
-                },
-                onRotateClick = { /* TODO */ },
-                onHorizontalClick = { /* TODO */ },
-                onVerticalClick = { /* TODO */ }
-            )
-        }
-    ) { paddingValues ->
-        Surface(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            color = MaterialTheme.colorScheme.background
-        ) {
-            WallpaperTemplate(
-                selectedImageIndex = viewModel.selectedImageIndex,
-                images = viewModel.images,
-                onImageClick = { index ->
-                    viewModel.selectImage(index)
-                }
-            )
-        }
+    when (viewModel.currentScreen) {
+        Screen.Gallery -> GalleryScreen(
+            onTemplateSelected = viewModel::selectTemplate
+        )
+        Screen.Editor -> TemplatePage(
+            selectedTemplate = viewModel.selectedTemplate,
+            images = viewModel.images,
+            selectedImageIndex = viewModel.selectedImageIndex,
+            onImageSelected = viewModel::selectImage,
+            onImageUpdated = viewModel::updateImage,
+            onSelectionCleared = viewModel::clearSelection,
+            onBackPressed = { viewModel.navigateToScreen(Screen.Gallery) }
+        )
     }
 }

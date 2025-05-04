@@ -12,6 +12,9 @@ import com.palettex.livewallpaperapp.ui.template.TemplateStyle
 import com.palettex.livewallpaperapp.ui.template.TwoImageTemplate
 
 class MainViewModel : ViewModel() {
+    var currentScreen by mutableStateOf<Screen>(Screen.Gallery)
+        private set
+
     var selectedImageIndex by mutableStateOf(-1)
         private set
 
@@ -21,10 +24,15 @@ class MainViewModel : ViewModel() {
     var images by mutableStateOf(TwoImageTemplate.createDefaultImages())
         private set
 
+    fun navigateToScreen(screen: Screen) {
+        currentScreen = screen
+    }
+
     fun selectTemplate(template: TemplateStyle) {
         selectedTemplate = template
         images = template.createDefaultImages()
         selectedImageIndex = -1
+        navigateToScreen(Screen.Editor)
     }
 
     fun selectImage(index: Int) {

@@ -1,160 +1,100 @@
 package com.palettex.livewallpaperapp.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AddPhotoAlternate
+import androidx.compose.material.icons.outlined.FilterAlt
+import androidx.compose.material.icons.outlined.Flip
+import androidx.compose.material.icons.outlined.RotateRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import com.palettex.livewallpaperapp.R
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditPhotoBottomMenu(
-    isVisible: Boolean,
-    onDoneClick: () -> Unit = {},
-    onBatchReplaceClick: () -> Unit = {},
-    onSingleReplaceClick: () -> Unit = {},
-    onRotateClick: () -> Unit = {},
-    onHorizontalClick: () -> Unit = {},
-    onVerticalClick: () -> Unit = {}
+    onReplaceClick: () -> Unit,
+    onRotateClick: () -> Unit,
+    onFlipClick: () -> Unit,
+    onFilterClick: () -> Unit,
+    onDoneClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    if (isVisible) {
-        BottomAppBar(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(180.dp),
-            containerColor = MaterialTheme.colorScheme.surface,
-            contentColor = MaterialTheme.colorScheme.onSurface,
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 8.dp
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
         ) {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
+            // Edit options row
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                // Title row with Done button
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 4.dp)
-                ) {
-                    // Center title
-                    Text(
-                        text = "Edit Photos",
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                    // Right-aligned Done button
-                    TextButton(
-                        onClick = onDoneClick,
-                        modifier = Modifier.align(Alignment.CenterEnd)
-                    ) {
-                        Text("Done")
-                    }
-                }
+                EditOption(
+                    icon = Icons.Outlined.AddPhotoAlternate,
+                    label = "Replace",
+                    onClick = onReplaceClick
+                )
+                EditOption(
+                    icon = Icons.Outlined.RotateRight,
+                    label = "Rotate",
+                    onClick = onRotateClick
+                )
+                EditOption(
+                    icon = Icons.Outlined.Flip,
+                    label = "Flip",
+                    onClick = onFlipClick
+                )
+                EditOption(
+                    icon = Icons.Outlined.FilterAlt,
+                    label = "Filter",
+                    onClick = onFilterClick
+                )
+            }
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp, vertical = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Batch Replace
-                    EditButton(
-                        text = "Batch\nReplace",
-                        icon = R.drawable.ic_batch_replace,
-                        onClick = onBatchReplaceClick
-                    )
-
-                    // Single Replace
-                    EditButton(
-                        text = "Single\nReplace",
-                        icon = R.drawable.ic_single_replace,
-                        onClick = onSingleReplaceClick
-                    )
-
-                    // Rotate
-                    EditButton(
-                        text = "Rotate",
-                        icon = R.drawable.ic_rotate,
-                        onClick = onRotateClick
-                    )
-
-                    // Horizontal
-                    EditButton(
-                        text = "Horizontal",
-                        icon = R.drawable.ic_horizontal,
-                        onClick = onHorizontalClick
-                    )
-
-                    // Vertical
-                    EditButton(
-                        text = "Vertical",
-                        icon = R.drawable.ic_vertical,
-                        onClick = onVerticalClick
-                    )
-                }
+            // Done button
+            Button(
+                onClick = onDoneClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+            ) {
+                Text("Done")
             }
         }
     }
 }
 
 @Composable
-private fun EditButton(
-    text: String,
-    icon: Int,
-    onClick: () -> Unit
+private fun EditOption(
+    icon: ImageVector,
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.width(64.dp)
+        modifier = modifier.clickable(onClick = onClick)
     ) {
-        FilledTonalIconButton(
-            onClick = onClick,
-            modifier = Modifier.size(40.dp)
-        ) {
-            Icon(
-                painter = painterResource(id = icon),
-                contentDescription = text,
-                modifier = Modifier.size(20.dp)
-            )
-        }
+        Icon(
+            imageVector = icon,
+            contentDescription = label,
+            modifier = Modifier.size(24.dp)
+        )
+        Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = text,
-            style = MaterialTheme.typography.bodySmall,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(top = 2.dp)
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun EditPhotoBottomMenuPreview() {
-    MaterialTheme {
-        EditPhotoBottomMenu(
-            isVisible = true,
-            onDoneClick = {},
-            onBatchReplaceClick = {},
-            onSingleReplaceClick = {},
-            onRotateClick = {},
-            onHorizontalClick = {},
-            onVerticalClick = {}
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun EditButtonPreview() {
-    MaterialTheme {
-        EditButton(
-            text = "Batch\nReplace",
-            icon = R.drawable.ic_batch_replace,
-            onClick = {}
+            text = label,
+            style = MaterialTheme.typography.bodySmall
         )
     }
 }

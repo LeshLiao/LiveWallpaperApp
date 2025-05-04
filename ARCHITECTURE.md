@@ -174,13 +174,13 @@ Managing user-created wallpapers and settings:
 
 The first version (MVP) will focus on implementing basic photo collage functionality:
 
-1. Implement basic UI framework with a template featuring two default images
-2. Develop image selection mechanism with focus indicator (red border)
-3. Implement photo selection and uploading for replacement
-4. Develop single and batch replacement functionality
-5. Implement rotation and orientation adjustment features
-6. Create animation system for dynamic image movement:
-   - One image moving from left to center
-   - Another image moving from right to center
-7. Create basic wallpaper service
-8. Complete wallpaper saving and application functionality
+- [ ] Implement basic UI framework with a template featuring two default images
+- [ ] Develop image selection mechanism with focus indicator (red border)
+- [ ] Implement photo selection and uploading for replacement
+- [ ] Develop single and batch replacement functionality
+- [ ] Implement rotation and orientation adjustment features
+- [ ] Create animation system for dynamic image movement:
+  - [ ] One image moving from left to center
+  - [ ] Another image moving from right to center
+- [ ] Create basic wallpaper service
+- [ ] Complete wallpaper saving and application functionality

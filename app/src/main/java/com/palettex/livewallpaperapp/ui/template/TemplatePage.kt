@@ -16,13 +16,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.palettex.livewallpaperapp.ui.components.NewEditPhotoBottomMenu
 import com.palettex.livewallpaperapp.ui.model.ImageItem
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -104,20 +109,28 @@ fun TwoImageLayout(
     onImageSelected: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier.fillMaxSize(),
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically
+    val parentSize = remember { mutableStateOf(IntSize(0, 0)) }
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .onSizeChanged { parentSize.value = it }
     ) {
         images.take(2).forEachIndexed { index, imageItem ->
+            val imageWidth = with(LocalDensity.current) { imageItem.width.toPx() }
+            val imageHeight = with(LocalDensity.current) { imageItem.height.toPx() }
             TemplateImage(
                 imageItem = imageItem,
                 isSelected = selectedImageIndex == index,
                 onClick = { onImageSelected(index) },
                 modifier = Modifier
-                    .weight(1f)
-                    .aspectRatio(1f)
-                    .padding(8.dp)
+                    .size(width = imageItem.width, height = imageItem.height)
+                    .offset {
+                        IntOffset(
+                            x = ((imageItem.xPercent / 100f) * (parentSize.value.width - imageWidth)).roundToInt(),
+                            y = ((imageItem.yPercent / 100f) * (parentSize.value.height - imageHeight)).roundToInt()
+                        )
+                    }
             )
         }
     }
@@ -130,39 +143,28 @@ fun ThreeImageLayout(
     onImageSelected: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceEvenly
-    ) {
-        // Top two images
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            images.take(2).forEachIndexed { index, imageItem ->
-                TemplateImage(
-                    imageItem = imageItem,
-                    isSelected = selectedImageIndex == index,
-                    onClick = { onImageSelected(index) },
-                    modifier = Modifier
-                        .weight(1f)
-                        .aspectRatio(1f)
-                        .padding(8.dp)
-                )
-            }
-        }
+    val parentSize = remember { mutableStateOf(IntSize(0, 0)) }
 
-        // Bottom image
-        images.getOrNull(2)?.let { imageItem ->
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .onSizeChanged { parentSize.value = it }
+    ) {
+        images.take(3).forEachIndexed { index, imageItem ->
+            val imageWidth = with(LocalDensity.current) { imageItem.width.toPx() }
+            val imageHeight = with(LocalDensity.current) { imageItem.height.toPx() }
             TemplateImage(
                 imageItem = imageItem,
-                isSelected = selectedImageIndex == 2,
-                onClick = { onImageSelected(2) },
+                isSelected = selectedImageIndex == index,
+                onClick = { onImageSelected(index) },
                 modifier = Modifier
-                    .fillMaxWidth(0.5f)
-                    .aspectRatio(1f)
-                    .padding(8.dp)
+                    .size(width = imageItem.width, height = imageItem.height)
+                    .offset {
+                        IntOffset(
+                            x = ((imageItem.xPercent / 100f) * (parentSize.value.width - imageWidth)).roundToInt(),
+                            y = ((imageItem.yPercent / 100f) * (parentSize.value.height - imageHeight)).roundToInt()
+                        )
+                    }
             )
         }
     }

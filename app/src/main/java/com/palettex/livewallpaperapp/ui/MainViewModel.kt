@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import com.palettex.livewallpaperapp.R
@@ -53,16 +54,18 @@ class MainViewModel : ViewModel() {
 
     fun addImage() {
         val newId = images.size
-        val newX = when (newId % 3) {
-            0 -> (-100).dp  // Left
-            1 -> 0.dp      // Center
-            else -> 100.dp // Right
+        val newXPercent = when (newId % 3) {
+            0 -> -40f  // Left
+            1 -> 0f    // Center
+            else -> 40f // Right
         }
         images = images + ImageItem(
             id = newId,
             defaultResourceId = R.drawable.default_image_one,
-            x = newX,
-            y = 0.dp
+            xPercent = newXPercent,
+            yPercent = 0f,
+            width = 150.dp,    // Default size for new images
+            height = 150.dp
         )
     }
 
@@ -75,14 +78,47 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun updateImagePosition(index: Int, x: Float, y: Float) {
+    fun updateImagePosition(index: Int, xPercent: Float, yPercent: Float) {
         if (index >= 0 && index < images.size) {
             val updatedImages = images.toMutableList()
             updatedImages[index] = images[index].copy(
-                x = x.dp,
-                y = y.dp
+                xPercent = xPercent.coerceIn(-100f, 100f),
+                yPercent = yPercent.coerceIn(-100f, 100f)
             )
             images = updatedImages
         }
+    }
+
+    fun updateInitialPosition(index: Int, xPercentInit: Float, yPercentInit: Float) {
+        if (index >= 0 && index < images.size) {
+            val updatedImages = images.toMutableList()
+            updatedImages[index] = images[index].copy(
+                xPercentInit = xPercentInit.coerceIn(-100f, 100f),
+                yPercentInit = yPercentInit.coerceIn(-100f, 100f)
+            )
+            images = updatedImages
+        }
+    }
+
+    fun updateImageSize(index: Int, width: Dp, height: Dp) {
+        if (index >= 0 && index < images.size) {
+            val updatedImages = images.toMutableList()
+            updatedImages[index] = images[index].copy(
+                width = width.coerceAtLeast(50.dp),  // Minimum size of 50dp
+                height = height.coerceAtLeast(50.dp)
+            )
+            images = updatedImages
+        }
+    }
+
+    fun generateLiveWallpaper() {
+        // This function will be called when the "Save" button is clicked
+        // It should:
+        // 1. Save the current state of images
+        // 2. Start the LiveWallpaperService
+        // 3. Pass the images to the service
+
+        // Note: Implementation will require integration with Android's
+        // WallpaperManager and proper permission handling
     }
 }

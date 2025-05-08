@@ -180,7 +180,8 @@ The first version (MVP) will focus on implementing basic photo collage functiona
 - [ ] Develop single and batch replacement functionality
 - [ ] Implement rotation and orientation adjustment features
 - [ ] Create animation system for dynamic image movement:
-  - [ ] One image moving from left to center
-  - [ ] Another image moving from right to center
+
+  - [ ] let One image moving from init position(xPercentInit, yPercentInit) to destination: (xPercent, yPercent)
+
 - [ ] Create basic wallpaper service
 - [ ] Complete wallpaper saving and application functionality
